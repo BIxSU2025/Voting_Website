@@ -4,8 +4,7 @@ include("logincheck.php");
 include("dbconnect.php");
 
 // Ensure a user is logged in before proceeding
-if (!isset($_SESSION['username']) ) {
-    
+if (!isset($_SESSION['username'])) {
     exit();
 }
 
@@ -14,14 +13,26 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['vote'])) {
+$username = $_SESSION['username']; // Get the logged-in username
+
+// Check if the user has already voted
+$stmt = $conn->prepare("SELECT candidate_name FROM voting_system WHERE username = ?");
+$stmt->bind_param("s", $username);
+$stmt->execute();
+$stmt->store_result();
+
+$hasVoted = ($stmt->num_rows > 0);
+$stmt->close();
+
+// Handle voting
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['vote']) && !$hasVoted) {
     $candidate = $_POST['vote'];
-    $username = $_SESSION['username']; // Get the logged-in username
 
     $stmt = $conn->prepare("INSERT INTO voting_system (username, candidate_name) VALUES (?, ?)");
     $stmt->bind_param("ss", $username, $candidate);
 
     if ($stmt->execute()) {
+        $hasVoted = true; // Update voting status
         echo "<p class='success-message' style='text-align: center;'>Thank you, $username! You voted for $candidate!</p>";
     } else {
         echo "<p class='error-message' style='text-align: center;'>Error saving your vote.</p>";
@@ -32,7 +43,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['vote'])) {
 
 $conn->close();
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -113,7 +123,7 @@ $conn->close();
             background: #007bff;
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 25px; /* Fully rounded buttons */
             font-size: 18px;
             cursor: pointer;
             transition: background 0.3s, transform 0.2s;
@@ -138,7 +148,7 @@ $conn->close();
 </head>
 <body>
     <nav>
-    <li style="float:right; padding-top:15px; font-weight:bold;">Welcome:<?php echo $_SESSION['username']?></li>
+        <li style="float:right; padding-top:15px; font-weight:bold;">Welcome: <?php echo $_SESSION['username']; ?></li>
         <a href="logout.php">
             <i class="fas fa-sign-out-alt"></i> Logout
         </a>
@@ -147,14 +157,19 @@ $conn->close();
     <div class="container">
         <div class="voting-container">
             <h1>Vote for Your Candidate</h1>
-            <form method="POST">
-                <button class="candidate" type="submit" name="vote" value="Person A">Vote for Person A</button>
-                <button class="candidate" type="submit" name="vote" value="Person B">Vote for Person B</button>
-                <button class="candidate" type="submit" name="vote" value="Person C">Vote for Person C</button>
-            </form>
+
+            <?php if ($hasVoted): ?>
+                <p class="error-message">You have already voted!</p>
+            <?php else: ?>
+                <form method="POST">
+                    <button class="candidate" type="submit" name="vote" value="Person A">Vote for A</button>
+                    <button class="candidate" type="submit" name="vote" value="Person B">Vote for B</button>
+                    <button class="candidate" type="submit" name="vote" value="Person C">Vote for C</button>
+                </form>
+            <?php endif; ?>
+            
         </div>
     </div>
 
-    
 </body>
 </html>

@@ -37,6 +37,7 @@
 
                 
 <ul id="nav-links">
+    <li><a href="adminloginpage.php">Admin</a></li>
     <li><a href="loginpage.php">Login In</a></li>
   <li> <a href="#">News</a></li>
   <li> <a href="#">Contact Us</a></li>
@@ -60,7 +61,7 @@
             <h3>How to Vote</h3>
         </a>
         
-        <a href="#">
+        <a href="result.php">
             <i class="fa-solid fa-square-poll-vertical fa-beat fa-2xl" style="color: #513f1f;"></i>
             <h3>View Election Results</h3>
         </a>

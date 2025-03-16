@@ -13,6 +13,7 @@
    
     <nav id="navbar">
         <ul id="nav-links">
+            
             <li><a href="home1.php">Home</a></li>
             <li><a href="#">News</a></li>
             <li><a href="#">Contact Us</a></li>

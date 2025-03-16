@@ -2,5 +2,5 @@
 include("dbconnect.php");
 session_start();
 session_unset();
-header("location:loginpage.php");
+header("location:home1.php");
 ?>
